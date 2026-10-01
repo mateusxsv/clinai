@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+// adição de senha para médico e usuário (pode criar uma classe usuário como guarda chuva)
+
 const medicoSchema = new mongoose.Schema({
     crm: {
         type: String,

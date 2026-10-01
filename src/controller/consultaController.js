@@ -12,3 +12,24 @@ async function criarConsulta(req, res) {
         })
     }
 }
+
+async function listarConsultas(req, res) {
+    try {
+        const consultas = Consulta.find()
+
+        res.status(201).json(consultas)
+    } catch (error) {
+        res.status(500).json({
+            mensagem: "Erro ao listar consultas",
+            erro: error.message
+        })
+    }
+}
+
+exports = {
+    criarConsulta,
+    listarConsultas,
+    buscarConsulta,
+    atualizarConsulta,
+    deletarConsulta
+}
