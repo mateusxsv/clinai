@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const consultaSchema = new mongoose.Schema({
     paciente: {
@@ -11,9 +11,28 @@ const consultaSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Medico",
         required: true
-    }
+    },
 
-    
+    preTriagem: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "PreTriagem",
+        required: true
+    },
+
+    data: {
+        type: Date,
+        required: true
+    },
+
+    horario: {
+        type: String,
+        required: true
+    },
+
+    status: {
+        type: String,
+        default: "agendada"
+    }
 });
 
 module.exports = mongoose.model("Consulta", consultaSchema);

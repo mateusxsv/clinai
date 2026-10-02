@@ -17,7 +17,7 @@ async function listarPacientes(req, res) {
     try {
         const pacientes = await Paciente.find();
 
-        res.status(201).json(pacientes);
+        res.status(200).json(pacientes);
     } catch (error) {
         res.status(500).json({
             mensagem: "Erro ao listar pacientes",
@@ -32,12 +32,11 @@ async function buscarPaciente(req, res) {
 
         if (!paciente) {
             return res.status(404).json({
-                mensagem: "Paciente não encontrado",
-                erro: error.message
+                mensagem: "Paciente não encontrado"
             })
         }
 
-        res.json(paciente);
+        res.status(200).json(paciente);
     } catch (error) {
         res.status(500).json({
             mensagem: "Erro ao buscar paciente",
@@ -60,7 +59,7 @@ async function atualizarPaciente(req, res) {
             });
         }
 
-        res.json(paciente);
+        res.status(200).json(paciente);
     } catch (error) {
         res.status(500).json({
             mensagem: "Erro ao atualizar paciente",
@@ -79,7 +78,10 @@ async function deletarPaciente(req, res) {
             });
         }
 
-        res.json(paciente);
+        res.status(200).json({
+            mensagem: "Paciente deletado com sucesso",
+            paciente
+        });
     } catch (error) {
         res.status(500).json({
             mensagem: "Erro ao deletar paciente",

@@ -15,9 +15,9 @@ async function criarPreTriagem(req, res) {
 
 async function listarPreTriagens(req, res) {
     try {
-        const preTriagens = await PreTriagem.find();
+        const preTriagens = await PreTriagem.find().populate("paciente");
 
-        res.status(201).json(preTriagens);
+        res.status(200).json(preTriagens);
     } catch (error) {
         res.status(500).json({
             mensagem: "Erro ao listar pré-triagens",
@@ -28,7 +28,7 @@ async function listarPreTriagens(req, res) {
 
 async function buscarPreTriagem(req, res) {
     try {
-        const preTriagem = await PreTriagem.findById(req.params.id);
+        const preTriagem = await PreTriagem.findById(req.params.id).populate("paciente");
 
         if (!preTriagem) {
             res.status(404).json({
@@ -37,7 +37,7 @@ async function buscarPreTriagem(req, res) {
             })
         }
 
-        res.json(preTriagem);
+        res.status(200).json(preTriagem);
     } catch (error) {
         res.status(500).json({
             mensagem: "Erro ao buscar pré-triagem",
@@ -60,7 +60,7 @@ async function atualizarPreTriagem(req, res) {
             });
         }
 
-        res.json(preTriagem);
+        res.status(200).json(preTriagem);
     } catch (error) {
         res.status(500).json({
             mensagem: "Erro ao atualizar pré-triagem",
@@ -79,7 +79,10 @@ async function deletarPreTriagem(req, res) {
             });
         }
 
-        res.json(preTriagem);
+        res.status(200).json({
+            mensagem: "Pré-triagem deletada com sucesso",
+            preTriagem
+        });
     } catch (error) {
         res.status(500).json({
             mensagem: "Erro ao deletar pré-triagem",
@@ -88,7 +91,7 @@ async function deletarPreTriagem(req, res) {
     }
 }
 
-exports = {
+module.exports = {
     criarPreTriagem,
     listarPreTriagens,
     buscarPreTriagem,

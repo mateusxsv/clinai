@@ -17,7 +17,7 @@ async function listarMedicos(req, res) {
     try {
         const medicos = await Medico.find();
 
-        res.status(201).json(medicos);
+        res.status(200).json(medicos);
     } catch (error) {
         res.status(500).json({
             mensagem: "Erro ao listar médicos",
@@ -32,12 +32,11 @@ async function buscarMedico(req, res) {
 
         if (!medico) {
             return res.status(404).json({
-                mensagem: "Médico não encontrado",
-                erro: error.message
+                mensagem: "Médico não encontrado"
             })
         }
 
-        res.json(medico);
+        res.status(200).json(medico);
     } catch (error) {
         res.status(500).json({
             mensagem: "Erro ao buscar médico",
@@ -60,7 +59,7 @@ async function atualizarMedico(req, res) {
             });
         }
 
-        res.json(medico);
+        res.status(200).json(medico);
     } catch (error) {
         res.status(500).json({
             mensagem: "Erro ao atualizar médico",
@@ -79,7 +78,10 @@ async function deletarMedico(req, res) {
             });
         }
 
-        res.json(medico);
+        res.status(200).json({
+            mensagem: "Médico deletado com sucesso",
+            medico
+        });
     } catch (error) {
         res.status(500).json({
             mensagem: "Erro ao deletar médico",
