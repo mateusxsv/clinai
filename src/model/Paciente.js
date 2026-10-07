@@ -12,8 +12,8 @@ const pacienteSchema = new mongoose.Schema({
         required: true
     },
 
-    idade: {
-        type: Number,
+    dataNascimento: {
+        type: Date,
         required: true
     },
 
@@ -31,17 +31,13 @@ const pacienteSchema = new mongoose.Schema({
     },
 
     historico: {
-        alergias: {
-            type: String
-        },
-
-        doencasFamilia: {
-            type: String
-        },
-
-        cirurgias: {
-            type: String
-        }
+        doencasCronicas: String,
+        alergias: String,
+        reacoes: String,
+        medicamentos: String,
+        cirurgias: String,
+        apoio: String,
+        doencasFamilia: String
     }
 });
 

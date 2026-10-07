@@ -32,8 +32,7 @@ async function buscarPreTriagem(req, res) {
 
         if (!preTriagem) {
             res.status(404).json({
-                mensagem: "Pré-triagem não encontrada",
-                erro: error.message
+                mensagem: "Pré-triagem não encontrada"
             })
         }
 

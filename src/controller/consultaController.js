@@ -15,7 +15,7 @@ async function criarConsulta(req, res) {
 
 async function listarConsultas(req, res) {
     try {
-        const consultas = Consulta.find()
+        const consultas = await Consulta.find()
         .populate("paciente")
         .populate("medico")
         .populate("preTriagem")
