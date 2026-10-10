@@ -1,10 +1,9 @@
 const mongoose = require("mongoose");
 
 const pacienteSchema = new mongoose.Schema({
+
     cpf: {
-        type: String,
-        required: true,
-        unique: true
+        type: String
     },
 
     nome: {
@@ -12,14 +11,20 @@ const pacienteSchema = new mongoose.Schema({
         required: true
     },
 
+    email: {
+        type: String
+    },
+
     dataNascimento: {
-        type: Date,
-        required: true
+        type: Date
+    },
+
+    telefone: {
+        type: String
     },
 
     sexo: {
-        type: String,
-        required: true
+        type: String
     },
 
     peso: {
@@ -39,6 +44,7 @@ const pacienteSchema = new mongoose.Schema({
         apoio: String,
         doencasFamilia: String
     }
+
 });
 
 module.exports = mongoose.model("Paciente", pacienteSchema);

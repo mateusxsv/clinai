@@ -2,9 +2,27 @@ const mongoose = require("mongoose");
 
 const usuarioSchema = new mongoose.Schema({
 
+    nome: {
+        type: String,
+        required: true
+    },
+
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+        lowercase: true
+    },
+
+    senha: {
+        type: String,
+        required: true
+    },
+
     tipo: {
         type: String,
-         enum: ["paciente", "medico", "admin"]
+        enum: ["paciente", "medico", "admin"],
+        required: true
     },
 
     paciente: {
@@ -18,6 +36,7 @@ const usuarioSchema = new mongoose.Schema({
         ref: "Medico",
         default: null
     }
+
 });
 
 module.exports = mongoose.model("Usuario", usuarioSchema);

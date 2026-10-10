@@ -21,15 +21,12 @@ app.use(express.json());
 app.use(cookieParser());
 
 
-// ROTAS ANTIGAS
+// Rotas principais da API
 
-app.use("/pacientes", pacienteRouter);
-app.use("/medicos", medicoRouter);
-app.use("/pre-triagens", preTriagemRouter);
-app.use("/consultas", consultaRouter);
-
-
-// ROTAS PARA O FRONTEND
+app.use("/api/patients", pacienteRouter);
+app.use("/api/doctors", medicoRouter);
+app.use("/api/triages", preTriagemRouter);
+app.use("/api/appointments", consultaRouter);
 
 app.use("/api/auth", authRouter);
 app.use("/api/me", usuarioRouter);
@@ -37,7 +34,7 @@ app.use("/api/me", usuarioRouter);
 
 app.get("/", (req, res) => {
     res.json({
-        mensagem: "API do Postinho funcionando!"
+        mensagem: "API do ClinAi funcionando!"
     });
 });
 
