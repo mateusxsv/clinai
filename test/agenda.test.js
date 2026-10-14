@@ -186,3 +186,39 @@ test("disponibilidade pertence ao médico autenticado", async () => {
   );
   assert.equal(denied.code, 403);
 });
+
+test("agenda padrão mantém cinco dias fechados e dois reduzidos em qualquer janela de 14 dias", () => {
+  for (const medico of ["a".repeat(24), "b".repeat(24)]) {
+    for (let offset = 0; offset < 14; offset++) {
+      const contagens = Array.from({ length: 14 }, (_, i) => {
+        const data = new Date(Date.UTC(2099, 4, 10 + offset + i))
+          .toISOString()
+          .slice(0, 10);
+        return agenda.horarios(agenda.agendaPadrao(medico, data)).length;
+      });
+      assert.equal(contagens.filter((n) => n === 0).length, 5);
+      assert.equal(contagens.filter((n) => n === 2).length, 2);
+      assert.equal(contagens.filter((n) => n === 8).length, 7);
+    }
+  }
+  assert.deepEqual(
+    agenda.agendaPadrao(id, "2099-05-10"),
+    agenda.agendaPadrao(id, "2099-05-10"),
+  );
+});
+test("confirma somente horários abertos na agenda padrão quando não há cadastro", async () => {
+  for (let i = 0; i < 14; i++) {
+    const { c, models, req, res } = setup();
+    models.Disponibilidade.findOne = async () => null;
+    req.body.date = new Date(Date.UTC(2099, 4, 10 + i))
+      .toISOString()
+      .slice(0, 10);
+    const esperado = agenda
+      .horarios(agenda.agendaPadrao(id, req.body.date))
+      .includes(req.body.time)
+      ? 201
+      : 409;
+    await c.criarConsulta(req, res);
+    assert.equal(res.code, esperado);
+  }
+});

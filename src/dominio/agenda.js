@@ -42,3 +42,29 @@ function horarios(disponibilidade) {
 }
 const idValido = (id) => typeof id === "string" && /^[a-f\d]{24}$/i.test(id);
 module.exports = { dataValida, minutos, futuro, horarios, idValido };
+
+// Ciclo estável por médico: qualquer janela de 14 dias contém 5 dias
+// fechados e 2 dias reduzidos. Cadastros explícitos têm prioridade.
+function agendaPadrao(medico, data) {
+  if (!dataValida(data)) return null;
+  let seed = 2166136261;
+  for (const letra of String(medico))
+    seed = Math.imul(seed ^ letra.charCodeAt(0), 16777619) >>> 0;
+  const ordem = Array.from({ length: 14 }, (_, i) => i);
+  for (let i = 13; i > 0; i--) {
+    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+    const j = seed % (i + 1);
+    [ordem[i], ordem[j]] = [ordem[j], ordem[i]];
+  }
+  const dia = Math.floor(Date.parse(data + "T12:00:00Z") / 86400000);
+  const posicao = ordem.indexOf(((dia % 14) + 14) % 14);
+  if (posicao < 5) return null;
+  return {
+    medico,
+    data,
+    inicio: "08:00",
+    fim: posicao < 7 ? "09:00" : "12:00",
+    duracao: 30,
+  };
+}
+module.exports.agendaPadrao = agendaPadrao;

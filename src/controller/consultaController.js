@@ -1,6 +1,11 @@
 const Disponibilidade = require("../model/Disponibilidade");
 const Medico = require("../model/Medico");
-const { futuro, horarios, idValido } = require("../dominio/agenda");
+const {
+  futuro,
+  horarios,
+  idValido,
+  agendaPadrao,
+} = require("../dominio/agenda");
 const Consulta = require("../model/Consulta");
 const Usuario = require("../model/Usuario");
 
@@ -76,12 +81,12 @@ async function criarConsulta(req, res) {
       medico: doctorId,
       data: date,
     });
-    if (!horarios(disponibilidade).includes(time))
-      return res
-        .status(409)
-        .json({
-          mensagem: "Este horário não está mais disponível. Escolha outro.",
-        });
+    if (
+      !horarios(disponibilidade ?? agendaPadrao(doctorId, date)).includes(time)
+    )
+      return res.status(409).json({
+        mensagem: "Este horário não está mais disponível. Escolha outro.",
+      });
 
     const existente = await Consulta.findOne({
       medico: doctorId,

@@ -1,7 +1,13 @@
 const Disponibilidade = require("../model/Disponibilidade");
 const Consulta = require("../model/Consulta");
 const Medico = require("../model/Medico");
-const { dataValida, horarios, futuro, idValido } = require("../dominio/agenda");
+const {
+  dataValida,
+  horarios,
+  futuro,
+  idValido,
+  agendaPadrao,
+} = require("../dominio/agenda");
 const formatar = (v) => ({
   date: v.data,
   start: v.inicio,
@@ -40,12 +46,10 @@ async function salvarDisponibilidade(req, res) {
     duracao: body.duration ?? body.duracao,
   };
   if (!dataValida(data) || !horarios(valor).length || !futuro(data, valor.fim))
-    return res
-      .status(400)
-      .json({
-        mensagem:
-          "Informe uma data futura, um período válido e duração de 10 a 120 minutos",
-      });
+    return res.status(400).json({
+      mensagem:
+        "Informe uma data futura, um período válido e duração de 10 a 120 minutos",
+    });
   try {
     const salva = await Disponibilidade.findOneAndUpdate(
       { medico, data },
@@ -73,7 +77,7 @@ async function buscarHorarios(req, res) {
     });
     const ocupados = new Set(consultas.map((c) => c.horario));
     res.json(
-      horarios(disponibilidade).filter(
+      horarios(disponibilidade ?? agendaPadrao(medico, data)).filter(
         (h) => futuro(data, h) && !ocupados.has(h),
       ),
     );
