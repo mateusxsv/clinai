@@ -87,10 +87,13 @@ async function registrar(req, res) {
         });
 
     } catch (error) {
-        res.status(500).json({
-            message: "Erro ao cadastrar usuário",
-            error: error.message
-        });
+    console.error("ERRO AO CADASTRAR PACIENTE:");
+    console.error(error);
+
+    res.status(500).json({
+        message: "Erro ao cadastrar paciente",
+        error: error.message
+    });
     }
 }
 
