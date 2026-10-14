@@ -6,6 +6,7 @@ const pacienteRouter = require("./router/pacienteRouter");
 const medicoRouter = require("./router/medicoRouter");
 const preTriagemRouter = require("./router/preTriagemRouter");
 const consultaRouter = require("./router/consultaRouter");
+const disponibilidadeRouter = require("./router/disponibilidadeRouter");
 
 const authRouter = require("./router/authRouter");
 const usuarioRouter = require("./router/usuarioRouter");
@@ -27,6 +28,7 @@ app.use("/api/patients", pacienteRouter);
 app.use("/api/doctors", medicoRouter);
 app.use("/api/triages", preTriagemRouter);
 app.use("/api/appointments", consultaRouter);
+app.use("/api/availability", disponibilidadeRouter);
 
 app.use("/api/auth", authRouter);
 app.use("/api/me", usuarioRouter);

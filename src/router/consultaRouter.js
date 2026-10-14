@@ -1,19 +1,32 @@
 const express = require("express");
 
+const autenticar =
+    require("../middleware/authMiddleware");
+
 const {
     criarConsulta,
     listarConsultas,
-    buscarConsulta,
-    atualizarConsulta,
-    deletarConsulta
+    atualizarConsulta
 } = require("../controller/consultaController");
 
 const router = express.Router();
 
-router.post("/", criarConsulta);
-router.get("/", listarConsultas);
-router.get("/:id", buscarConsulta);
-router.put("/:id", atualizarConsulta);
-router.delete("/:id", deletarConsulta);
+router.get(
+    "/",
+    autenticar,
+    listarConsultas
+);
+
+router.post(
+    "/",
+    autenticar,
+    criarConsulta
+);
+
+router.patch(
+    "/:id",
+    autenticar,
+    atualizarConsulta
+);
 
 module.exports = router;

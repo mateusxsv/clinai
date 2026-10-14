@@ -16,11 +16,11 @@ const consultaSchema = new mongoose.Schema({
     preTriagem: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "PreTriagem",
-        required: true
+        default: null
     },
 
     data: {
-        type: Date,
+        type: String,
         required: true
     },
 
@@ -29,10 +29,58 @@ const consultaSchema = new mongoose.Schema({
         required: true
     },
 
+    plano: {
+        type: String,
+        default: "Particular"
+    },
+
+    historico: {
+        doencasCronicas: String,
+        alergias: String,
+        reacoes: String,
+        medicamentos: String,
+        cirurgias: String,
+        apoio: String
+    },
+
+    relato: {
+        queixa: String,
+        inicio: String,
+        local: String,
+        evolucao: String,
+        dor: Number,
+        outros: String,
+        medicamento: String,
+        gravidez: String
+    },
+
     status: {
         type: String,
-        default: "agendada"
+        enum: ["scheduled", "confirmed", "cancelled"],
+        default: "scheduled"
+    },
+
+    revisado: {
+        type: Boolean,
+        default: false
     }
 });
 
-module.exports = mongoose.model("Consulta", consultaSchema);
+consultaSchema.index(
+    {
+        medico: 1,
+        data: 1,
+        horario: 1
+    },
+    {
+        unique: true,
+        partialFilterExpression: {
+            status: { $ne: "cancelled" }
+        }
+    }
+);
+
+module.exports = mongoose.model(
+    "Consulta",
+    consultaSchema
+);

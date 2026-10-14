@@ -5,13 +5,18 @@ const {
     listarMedicos,
     buscarMedico,
     atualizarMedico,
-    deletarMedico
+    deletarMedico,
 } = require("../controller/medicoController");
+
+const {
+    buscarHorarios
+} = require("../controller/disponibilidadeController");
 
 const router = express.Router();
 
 router.post("/", criarMedico);
 router.get("/", listarMedicos);
+router.get("/:id/slots", buscarHorarios);
 router.get("/:id", buscarMedico);
 router.put("/:id", atualizarMedico);
 router.delete("/:id", deletarMedico);
