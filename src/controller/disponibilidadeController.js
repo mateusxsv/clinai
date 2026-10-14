@@ -1,110 +1,88 @@
 const Disponibilidade = require("../model/Disponibilidade");
 const Consulta = require("../model/Consulta");
-
+const Medico = require("../model/Medico");
+const { dataValida, horarios, futuro, idValido } = require("../dominio/agenda");
+const formatar = (v) => ({
+  date: v.data,
+  start: v.inicio,
+  end: v.fim,
+  duration: v.duracao,
+});
+function medicoDaSessao(req, res) {
+  if (req.usuario?.tipo !== "medico" || !req.usuario.medico) {
+    res
+      .status(403)
+      .json({ mensagem: "Somente médicos podem alterar sua disponibilidade" });
+    return null;
+  }
+  return req.usuario.medico;
+}
+async function listarDisponibilidades(req, res) {
+  const medico = medicoDaSessao(req, res);
+  if (!medico) return;
+  try {
+    const lista = await Disponibilidade.find({ medico }).sort({ data: 1 });
+    res.json(lista.map(formatar));
+  } catch {
+    res.status(500).json({ mensagem: "Erro ao buscar disponibilidade" });
+  }
+}
 async function salvarDisponibilidade(req, res) {
-    try {
-        const {
-            medico,
-            data,
-            inicio,
-            fim,
-            duracao
-        } = req.body;
-
-        if (!medico || !data || !inicio || !fim || !duracao) {
-            return res.status(400).json({
-                mensagem: "Preencha todos os campos"
-            });
-        }
-
-        const disponibilidade =
-            await Disponibilidade.findOneAndUpdate(
-                { medico, data },
-                {
-                    medico,
-                    data,
-                    inicio,
-                    fim,
-                    duracao
-                },
-                {
-                    new: true,
-                    upsert: true
-                }
-            );
-
-        res.status(200).json(disponibilidade);
-
-    } catch (error) {
-        res.status(500).json({
-            mensagem: "Erro ao salvar disponibilidade",
-            erro: error.message
-        });
-    }
+  const medico = medicoDaSessao(req, res);
+  if (!medico) return;
+  const body = req.body;
+  const data = body.date ?? body.data;
+  const valor = {
+    medico,
+    data,
+    inicio: body.start ?? body.inicio,
+    fim: body.end ?? body.fim,
+    duracao: body.duration ?? body.duracao,
+  };
+  if (!dataValida(data) || !horarios(valor).length || !futuro(data, valor.fim))
+    return res
+      .status(400)
+      .json({
+        mensagem:
+          "Informe uma data futura, um período válido e duração de 10 a 120 minutos",
+      });
+  try {
+    const salva = await Disponibilidade.findOneAndUpdate(
+      { medico, data },
+      valor,
+      { new: true, upsert: true, runValidators: true },
+    );
+    res.json(formatar(salva));
+  } catch {
+    res.status(500).json({ mensagem: "Erro ao salvar disponibilidade" });
+  }
 }
-
 async function buscarHorarios(req, res) {
-    try {
-        const medico = req.params.id;
-        const { date } = req.query;
-
-        const disponibilidade =
-            await Disponibilidade.findOne({
-                medico,
-                data: date
-            });
-
-        if (!disponibilidade) {
-            return res.status(200).json([]);
-        }
-
-        const horarios = [];
-
-        const [horaInicio, minutoInicio] =
-            disponibilidade.inicio.split(":").map(Number);
-
-        const [horaFim, minutoFim] =
-            disponibilidade.fim.split(":").map(Number);
-
-        let atual = horaInicio * 60 + minutoInicio;
-        const fim = horaFim * 60 + minutoFim;
-
-        while (atual + disponibilidade.duracao <= fim) {
-            const hora = Math.floor(atual / 60);
-            const minuto = atual % 60;
-
-            horarios.push(
-                `${String(hora).padStart(2, "0")}:${String(minuto).padStart(2, "0")}`
-            );
-
-            atual += disponibilidade.duracao;
-        }
-
-        const consultas = await Consulta.find({
-            medico,
-            data: date,
-            status: { $ne: "cancelled" }
-        });
-
-        const ocupados = consultas.map(
-            consulta => consulta.horario
-        );
-
-        const livres = horarios.filter(
-            horario => !ocupados.includes(horario)
-        );
-
-        res.status(200).json(livres);
-
-    } catch (error) {
-        res.status(500).json({
-            mensagem: "Erro ao buscar horários",
-            erro: error.message
-        });
-    }
+  const medico = req.params.id,
+    data = req.query.date;
+  if (!idValido(medico) || !dataValida(data))
+    return res.status(400).json({ mensagem: "Médico ou data inválidos" });
+  try {
+    if (!(await Medico.exists({ _id: medico })))
+      return res.status(404).json({ mensagem: "Médico não encontrado" });
+    const disponibilidade = await Disponibilidade.findOne({ medico, data });
+    const consultas = await Consulta.find({
+      medico,
+      data,
+      status: { $in: ["scheduled", "confirmed"] },
+    });
+    const ocupados = new Set(consultas.map((c) => c.horario));
+    res.json(
+      horarios(disponibilidade).filter(
+        (h) => futuro(data, h) && !ocupados.has(h),
+      ),
+    );
+  } catch {
+    res.status(500).json({ mensagem: "Erro ao buscar horários" });
+  }
 }
-
 module.exports = {
-    salvarDisponibilidade,
-    buscarHorarios
+  salvarDisponibilidade,
+  listarDisponibilidades,
+  buscarHorarios,
 };
